@@ -66,7 +66,49 @@ callRouter.route('/now')
     
 callRouter.route('/aht')
     .get(function(req, res){
-        res.send('AHT');
+        
+         var query = {};
+		 var buildTimeString = [];
+		 var currentDate = new Date();
+		 var timeFromHour = currentDate.getMinutes();
+		 
+		 for (var i = timeFromHour + 1; i < 60; i++) { 
+           buildTimeString.push({minute:i ,calls:0});
+         }
+         
+ 		 for (var i = 0; i <= timeFromHour; i++) { 
+           buildTimeString.push({minute:i ,calls:0});
+         }
+         
+         var promises = buildTimeString.map(function(data) {
+            return CallerLog.aggregate(
+                  [
+                    { $match: {
+                        minute: data.minute
+                    }},
+                    {
+                    $group : {
+                       _id : null,
+                       totalseconds: { $sum: "$calltime" }
+                    }
+                    }
+                ], function (err, result) {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    
+                    data.calls = result[0].totalseconds;
+                }
+            );
+         });
+    
+         Promise.all(promises)
+            .then(function() { 
+                res.json(buildTimeString);
+            })
+            .error(console.error);
+         
     });
 
 app.use('/api', callRouter);
