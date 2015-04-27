@@ -2,7 +2,6 @@
 var express = require('express');
 var Promise = require('bluebird');
 var mongoose = Promise.promisifyAll(require('mongoose'));
-
 		
 //Declarations
 var db = mongoose.connect('mongodb://Woden:Brutus5hep@ds062807.mongolab.com:62807/calldata');		
@@ -54,7 +53,15 @@ callRouter.route('/calls')
 	
 callRouter.route('/now')
     .get(function(req, res){
-        res.send('Now');
+        TempLog.count(function(err, calls){
+            var obj = [];
+            obj.push({current : calls });
+            if(!err){
+                res.json(obj);
+            } else {
+                console.log(err);
+            }
+        });
     });
     
 callRouter.route('/aht')

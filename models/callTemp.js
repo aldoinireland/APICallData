@@ -1,19 +1,8 @@
 var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+    SchemaNow = mongoose.Schema;
 	
-var tempModel = new Schema({
-	phonedns: {type: String},
-	caller: {type: String},
-	starttime: {type: Number},
-	endtime: {type: Number},
-	logdate: {type: Date},
-	teamleader: {type: String},
-	empnum: {type: String},
-	site: {type: String},
-	department: {type: String},
-	queue: {type: String},
-	calltime: {type: Number},
-	minute: {type: Number}
+var tempModel = new SchemaNow({
+	name: {type: String}
 });
 
-module.exports = mongoose.model('calltemp', tempModel);
+module.exports = mongoose.model('currentcalls', tempModel);
