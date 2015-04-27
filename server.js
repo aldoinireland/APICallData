@@ -2,11 +2,7 @@
 var express = require('express');
 var Promise = require('bluebird');
 var mongoose = Promise.promisifyAll(require('mongoose'));
-var log4js = require('log4js');
 
-//Setup Logging
-log4js.loadAppender('file');
-log4js.addAppender(log4js.appenders.file('logs/apilog.log'), 'apilog');
 		
 //Declarations
 var db = mongoose.connect('mongodb://Woden:Brutus5hep@ds062807.mongolab.com:62807/calldata');		
@@ -14,7 +10,6 @@ var CallerLog = require('./models/callModel');
 var app = express();
 var port = process.env.PORT || 3000;
 var callRouter = express.Router();
-var logger = log4js.getLogger('apilog');
 
 //Routes
 callRouter.route('/calls')
@@ -44,17 +39,16 @@ callRouter.route('/calls')
                 if(!err){
                     data.calls = calls;
                 } else {
-                    logger.error(err);
+                    console.log(err);
                 }
             });
          });
     
          Promise.all(promises)
             .then(function() { 
-                logger.info('Succesfully completed API call (/calls)'); 
                 res.json(buildTimeString);
             })
-            .error(function(err){logger.error(err)});
+            .error(console.error);
 	});
 
 app.use('/api', callRouter);
