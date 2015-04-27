@@ -52,7 +52,7 @@ callRouter.route('/calls')
             .error(console.error);
 	});
 	
-callRouter.route('/calls')
+callRouter.route('/now')
     .get(function(req, res){
         res.send('Now');
     });
