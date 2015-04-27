@@ -56,6 +56,11 @@ callRouter.route('/now')
     .get(function(req, res){
         res.send('Now');
     });
+    
+callRouter.route('/aht')
+    .get(function(req, res){
+        res.send('AHT');
+    });
 
 app.use('/api', callRouter);
 
