@@ -7,6 +7,7 @@ var mongoose = Promise.promisifyAll(require('mongoose'));
 //Declarations
 var db = mongoose.connect('mongodb://Woden:Brutus5hep@ds062807.mongolab.com:62807/calldata');		
 var CallerLog = require('./models/callModel');
+var TempLog = require('./models/callTemp');
 var app = express();
 var port = process.env.PORT || 3000;
 var callRouter = express.Router();
@@ -50,6 +51,11 @@ callRouter.route('/calls')
             })
             .error(console.error);
 	});
+	
+callRouter.route('/calls')
+    .get(function(req, res){
+        res.send('Now');
+    });
 
 app.use('/api', callRouter);
 
