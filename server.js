@@ -67,17 +67,16 @@ callRouter.route('/now')
 callRouter.route('/aht')
     .get(function(req, res){
         
-         var query = {};
 		 var buildTimeString = [];
 		 var currentDate = new Date();
 		 var timeFromHour = currentDate.getMinutes();
 		 
 		 for (var i = timeFromHour + 1; i < 60; i++) { 
-           buildTimeString.push({minute:i ,calls:0});
+           buildTimeString.push({minute:i ,totalseconds:0});
          }
          
  		 for (var i = 0; i <= timeFromHour; i++) { 
-           buildTimeString.push({minute:i ,calls:0});
+           buildTimeString.push({minute:i ,totalseconds:0});
          }
          
          var promises = buildTimeString.map(function(data) {
@@ -98,7 +97,53 @@ callRouter.route('/aht')
                         return;
                     }
                     
-                    data.calls = result[0].totalseconds;
+                    data.totalseconds = result[0].totalseconds;
+                }
+            );
+         });
+    
+         Promise.all(promises)
+            .then(function() { 
+                res.json(buildTimeString);
+            })
+            .error(console.error);
+         
+    });
+    
+callRouter.route('/avg')
+    .get(function(req, res){
+        
+		 var buildTimeString = [];
+		 var currentDate = new Date();
+		 var timeFromHour = currentDate.getMinutes();
+		 
+		 for (var i = timeFromHour + 1; i < 60; i++) { 
+           buildTimeString.push({minute:i ,avgseconds:0});
+         }
+         
+ 		 for (var i = 0; i <= timeFromHour; i++) { 
+           buildTimeString.push({minute:i ,avgseconds:0});
+         }
+         
+         var promises = buildTimeString.map(function(data) {
+            return CallerLog.aggregate(
+                  [
+                    { $match: {
+                        minute: data.minute
+                    }},
+                    {
+                    $group : {
+                       _id : null,
+                       totalseconds: { $avg: "$calltime" }
+                    }
+                    }
+                ], function (err, result) {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    
+                    data.avgseconds = (result[0].totalseconds).toFixed(0);
                 }
             );
          });
@@ -114,7 +159,7 @@ callRouter.route('/aht')
 app.use('/api', callRouter);
 
 app.get('/', function(req, res){
-	res.send('welcome to my API');
+	res.send('welcome to Call Data API');
 });
 
 app.listen(port, function() { 
