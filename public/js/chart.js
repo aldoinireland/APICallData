@@ -83,7 +83,10 @@ var avg = c3.generate({
         columns: [
             ['x', '0'],
             ['Average Seconds', 0],
-        ]
+        ],        
+        types: {
+            'Average Seconds' : 'area-spline'
+        }
     },
     axis: {
         x: {
