@@ -8,8 +8,21 @@ var db = mongoose.connect('mongodb://Woden:Brutus5hep@ds062807.mongolab.com:6280
 var CallerLog = require('./models/callModel');
 var TempLog = require('./models/callTemp');
 var app = express();
+var ejsEngine = require("ejs-locals");
 var port = process.env.PORT || 3000;
 var callRouter = express.Router();
+var controllers = require("./controllers");
+
+//View Engine
+app.engine("html", ejsEngine);
+app.set("view engine", "ejs");
+
+//Controllers
+controllers.init(app);
+
+//Set Static Routes
+app.use(express.static(__dirname + "/public"));
+
 
 //Routes
 callRouter.route('/calls')
@@ -157,10 +170,6 @@ callRouter.route('/avg')
     });
 
 app.use('/api', callRouter);
-
-app.get('/', function(req, res){
-	res.send('welcome to Call Data API');
-});
 
 app.listen(port, function() { 
 	console.log('Running Running on PORT: ' + port);
