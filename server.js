@@ -143,7 +143,7 @@ callRouter.route('/avg')
                         return;
                     }
                     
-                    data.avgseconds = (result[0].totalseconds).toFixed(0);
+                    data.avgseconds = parseInt((result[0].totalseconds).toFixed(0));
                 }
             );
          });
