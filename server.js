@@ -4,7 +4,7 @@ var Promise = require('bluebird');
 var mongoose = Promise.promisifyAll(require('mongoose'));
 		
 //Declarations
-var db = mongoose.connect('mongodb://xxxxx:xxxxxx@ds062807.mongolab.com:62807/calldata');		
+var db = mongoose.connect('mongodb://Woden:Brutus5hep@ds062807.mongolab.com:62807/calldata');		
 var CallerLog = require('./models/callModel');
 var TempLog = require('./models/callTemp');
 var app = express();
