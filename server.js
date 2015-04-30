@@ -23,6 +23,14 @@ controllers.init(app);
 //Set Static Routes
 app.use(express.static(__dirname + "/public"));
 
+//Mathematics
+var sumArray = function(array){
+    var sum = 0;
+    for( var i = 0; i < array.length; i++ ){
+    sum += parseInt( array._doc.calltime, 10 ); //don't forget to add the base
+    }
+    return sum;
+}
 
 //Routes
 callRouter.route('/calls')
@@ -39,24 +47,149 @@ callRouter.route('/calls')
 		 var timeFromHour = currentDate.getMinutes();
 		 
 		 for (var i = timeFromHour + 1; i < 60; i++) { 
-           buildTimeString.push({minute:i ,calls:0});
+           buildTimeString.push({minute:i ,wtfd:0 ,wex:0, cvn:0});
          }
          
  		 for (var i = 0; i <= timeFromHour; i++) { 
-           buildTimeString.push({minute:i ,calls:0});
+            buildTimeString.push({minute:i ,wtfd:0 ,wex:0, cvn:0});
          }
          
          var promises = buildTimeString.map(function(data) {
             query.minute = data.minute;
-            return CallerLog.count(query, function(err, calls){
+            return CallerLog.find(query, function(err, calls){
                 if(!err){
-                    data.calls = calls;
+                    
+                    calls.filter(function(calls) { 
+                        switch(calls._doc.site){
+                            case "Waterford" :
+                                data.wtfd += 1;
+                                break;
+                            case "Wexford" :
+                                data.wex +=1;
+                                break;
+                            case "Craigavon" :
+                                data.cvn +=1;
+                                break;
+                        }
+                    });
                 } else {
                     console.log(err);
                 }
             });
          });
-    
+         
+         Promise.all(promises)
+            .then(function() { 
+                res.json(buildTimeString);
+            })
+            .error(console.error);
+	});
+	
+callRouter.route('/sum')
+	.get(function(req, res){
+		
+		var query = {};
+		
+         if(req.query.minute)	{
+			 query.endMinute = req.query.minute;
+		 }	
+		 
+		 var buildTimeString = [];
+		 var currentDate = new Date();
+		 var timeFromHour = currentDate.getMinutes();
+		 
+		 for (var i = timeFromHour + 1; i < 60; i++) { 
+           buildTimeString.push({minute:i ,wtfrdsum : 0, wexsum: 0, cvnsum : 0});
+         }
+         
+ 		 for (var i = 0; i <= timeFromHour; i++) { 
+            buildTimeString.push({minute:i ,wtfrdsum : 0, wexsum: 0, cvnsum : 0});
+         }
+         
+         var promises = buildTimeString.map(function(data) {
+            query.endMinute = data.minute;
+            return CallerLog.find(query, function(err, calls){
+                if(!err){
+                    
+                    calls.filter(function(calls) { 
+                        switch(calls._doc.site){
+                            case "Waterford" :
+                                data.wtfrdsum += calls._doc.calltime;
+                                break;
+                            case "Wexford" :
+                                data.wexsum += calls._doc.calltime;
+                                break;
+                            case "Craigavon" :
+                                data.cvnsum += calls._doc.calltime;
+                                break;
+                        }
+                    });
+                } else {
+                    console.log(err);
+                }
+            });
+         });
+         
+         Promise.all(promises)
+            .then(function() { 
+                res.json(buildTimeString);
+            })
+            .error(console.error);
+	});
+	
+callRouter.route('/avg')
+	.get(function(req, res){
+		
+		var countwtfrd = 0, countwex = 0, countcvn = 0;
+		var sumwtfrd = 0, sumwex = 0, sumcvn = 0;
+		var query = {};
+		
+         if(req.query.minute)	{
+			 query.endMinute = req.query.minute;
+		 }	
+		 
+		 var buildTimeString = [];
+		 var currentDate = new Date();
+		 var timeFromHour = currentDate.getMinutes();
+		 
+		 for (var i = timeFromHour + 1; i < 60; i++) { 
+           buildTimeString.push({minute:i ,wtfrdavg : 0, wexavg : 0, cvnavg : 0});
+         }
+         
+ 		 for (var i = 0; i <= timeFromHour; i++) { 
+            buildTimeString.push({minute:i ,wtfrdavg : 0, wexavg : 0, cvnavg : 0});
+         }
+         
+         var promises = buildTimeString.map(function(data) {
+            query.endMinute = data.minute;
+            return CallerLog.find(query, function(err, calls){
+                if(!err){
+                    
+                    calls.filter(function(calls) { 
+                        switch(calls._doc.site){
+                            case "Waterford" :
+                                countwtfrd += 1;
+                                sumwtfrd += calls._doc.calltime;
+                                data.wtfrdavg = parseInt((sumwtfrd / countwtfrd),10);
+                                break;
+                            case "Wexford" :
+                                countwex +=1;
+                                sumwex += calls._doc.calltime;
+                                data.wexavg = parseInt((sumwex / countwex),10);
+                                break;
+                            case "Craigavon" :
+                                countcvn +=1;
+                                sumcvn += calls._doc.calltime;
+                                data.cvnavg = parseInt((sumcvn / countcvn),10);
+                                break;
+                        }
+                    });
+                } else {
+                    console.log(err);
+                }
+            });
+         });
+         
          Promise.all(promises)
             .then(function() { 
                 res.json(buildTimeString);
@@ -77,98 +210,51 @@ callRouter.route('/now')
         });
     });
     
-callRouter.route('/aht')
+callRouter.route('/nowwtfrd')
     .get(function(req, res){
-        
-		 var buildTimeString = [];
-		 var currentDate = new Date();
-		 var timeFromHour = currentDate.getMinutes();
-		 
-		 for (var i = timeFromHour + 1; i < 60; i++) { 
-           buildTimeString.push({minute:i ,totalseconds:0});
-         }
-         
- 		 for (var i = 0; i <= timeFromHour; i++) { 
-           buildTimeString.push({minute:i ,totalseconds:0});
-         }
-         
-         var promises = buildTimeString.map(function(data) {
-            return CallerLog.aggregate(
-                  [
-                    { $match: {
-                        minute: data.minute
-                    }},
-                    {
-                    $group : {
-                       _id : null,
-                       totalseconds: { $sum: "$calltime" }
-                    }
-                    }
-                ], function (err, result) {
-                    if (err) {
-                        console.log(err);
-                        return;
-                    }
-                    
-                    data.totalseconds = result[0].totalseconds;
-                }
-            );
-         });
-    
-         Promise.all(promises)
-            .then(function() { 
-                res.json(buildTimeString);
-            })
-            .error(console.error);
-         
+        var query = {};
+        query.site = 'Waterford';
+        TempLog.count(query, function(err, calls){
+            var obj = [];
+            obj.push({current : calls });
+            if(!err){
+                res.json(obj);
+            } else {
+                console.log(err);
+            }
+        });
     });
     
-callRouter.route('/avg')
+callRouter.route('/nowwex')
     .get(function(req, res){
-        
-		 var buildTimeString = [];
-		 var currentDate = new Date();
-		 var timeFromHour = currentDate.getMinutes();
-		 
-		 for (var i = timeFromHour + 1; i < 60; i++) { 
-           buildTimeString.push({minute:i ,avgseconds:0});
-         }
-         
- 		 for (var i = 0; i <= timeFromHour; i++) { 
-           buildTimeString.push({minute:i ,avgseconds:0});
-         }
-         
-         var promises = buildTimeString.map(function(data) {
-            return CallerLog.aggregate(
-                  [
-                    { $match: {
-                        minute: data.minute
-                    }},
-                    {
-                    $group : {
-                       _id : null,
-                       totalseconds: { $avg: "$calltime" }
-                    }
-                    }
-                ], function (err, result) {
-                    if (err) {
-                        console.log(err);
-                        return;
-                    }
-                    
-                    data.avgseconds = parseInt((result[0].totalseconds).toFixed(0));
-                }
-            );
-         });
-    
-         Promise.all(promises)
-            .then(function() { 
-                res.json(buildTimeString);
-            })
-            .error(console.error);
-         
+        var query = {};
+        query.site = 'Wexford';
+        TempLog.count(query, function(err, calls){
+            var obj = [];
+            obj.push({current : calls });
+            if(!err){
+                res.json(obj);
+            } else {
+                console.log(err);
+            }
+        });
     });
-
+    
+callRouter.route('/nowcvn')
+    .get(function(req, res){
+        var query = {};
+        query.site = 'Craigavon';
+        TempLog.count(query, function(err, calls){
+            var obj = [];
+            obj.push({current : calls });
+            if(!err){
+                res.json(obj);
+            } else {
+                console.log(err);
+            }
+        });
+    });
+    
 app.use('/api', callRouter);
 
 app.listen(port, function() { 

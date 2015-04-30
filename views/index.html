@@ -3,36 +3,165 @@
     <h3>Call Data Analysis</h3>
     <div class='chart'>
         <div class="row">
-            <div class="col-md-12">
-                <p>Calls Volume vs Minutes (Last 60 minutes per minute)</p>
+            <div class="col-md-8">
+                <p>Current Active Calls</p>
+            </div>
+        </div>
+        <div class="row bottom25">
+            <div class="col-md-4">
+                <button class="btn btn-success btn-block btn-lg">Waterford</button>
+                <button class="btn btn-success btn-block btn-lg"><span data-bind="text: nowwtfrd" style="font-size: 8em"></span></button>
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary btn-block btn-lg">Wexford</button>
+                <button class="btn btn-primary btn-block btn-lg"><span data-bind="text: nowwex" style="font-size: 8em"></span></button>
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-warning btn-block btn-lg">Craigavon</button>
+                <button class="btn btn-warning btn-block btn-lg"><span data-bind="text: nowcvn" style="font-size: 8em"></span></button>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
+                <p>Calls Volume vs Minutes (Last 60 minutes per minute)</p>
+            </div>
+            <div class="col-md-6">
+                <span class="pull-right" id="loadingtotal"><i class="fa fa-spinner fa-pulse"></i> Loading</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-2 col-md-12 col-sm-12">
+                <div class="row bottom15">
+                    <div class="col-lg-12 col-md-3 col-sm-3 bottom15">
+                        <button class="btn btn-success btn-block" id="btnwtfrd">Waterford <span id="tickbtnwtfrd" class="pull-right" data-bind="visible : btnwtfrd"><i class="fa fa-check-square"></i></span></button>
+                    </div>
+                    <div class="col-lg-12 col-md-3 col-sm-3 bottom15">
+                        <button class="btn btn-primary btn-block" id="btnwex">Wexford <span id="tickbtnwex" class="pull-right" data-bind="visible : btnwex"><i class="fa fa-check-square"></i></span></button>
+                    </div>
+                    <div class="col-lg-12 col-md-3 col-sm-3 bottom15">
+                        <button class="btn btn-warning btn-block" id="btncvn">Craigavon <span id="tickbtncvn" class="pull-right" data-bind="visible : btncvn"><i class="fa fa-check-square"></i></span></button>
+                    </div>
+                    <div class="col-lg-12 col-md-3 col-sm-3 bottom15">
+                        <button class="btn btn-INFO btn-block" id="btnall">All Sites <span id="tickbtnall" class="pull-right" data-bind="visible : btnall"><i class="fa fa-check-square"></i></span></button>
+                    </div>
+                </div>
+                <div class="row bottom15">
+                    <div class="col-xs-2" style="padding-right: 10px;">
+                        <i class="fa fa-bar-chart fa-2x"></i>
+                    </div>
+                    <div class="col-xs-10">
+                        <div style="margin-left: 10px">
+                            <select class="form-control" id="totalgraph">
+                              <option>Bar</option>
+                              <option>Line</option>
+                              <option>Area</option>
+                              <option>Area Spline</option>
+                              <option>Step</option>
+                              <option>Step Area</option>
+                              <option>Spline</option>
+                              <option>Scatter</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-10 col-sm-12 col-sm-12">
                 <div id='chart'></div>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-7">
                 <p>Total Seconds vs Minutes (Last 60 minutes per minute)</p>
             </div>
+            <div class="col-md-5">
+                <span class="pull-right" id="loadingsum"><i class="fa fa-spinner fa-pulse"></i> Loading</span>
+            </div>
         </div>
         <div class="row">
-            <div class="col-md-8">
+        <div class="col-lg-2 col-md-12 col-sm-12">
+                <div class="row bottom15">
+                    <div class="col-lg-12 col-md-3 col-sm-3 bottom15">
+                        <button class="btn btn-success btn-block" id="btnwtfrdsum">Waterford <span id="tickbtnwtfrd" class="pull-right" data-bind="visible : btnwtfrdsum"><i class="fa fa-check-square"></i></span></button>
+                    </div>
+                    <div class="col-lg-12 col-md-3 col-sm-3 bottom15">
+                        <button class="btn btn-primary btn-block" id="btnwexsum">Wexford <span id="tickbtnwex" class="pull-right" data-bind="visible : btnwexsum"><i class="fa fa-check-square"></i></span></button>
+                    </div>
+                    <div class="col-lg-12 col-md-3 col-sm-3 bottom15">
+                        <button class="btn btn-warning btn-block" id="btncvnsum">Craigavon <span id="tickbtncvn" class="pull-right" data-bind="visible : btncvnsum"><i class="fa fa-check-square"></i></span></button>
+                    </div>
+                    <div class="col-lg-12 col-md-3 col-sm-3 bottom15">
+                        <button class="btn btn-INFO btn-block" id="btnallsum">All Sites <span id="tickbtnall" class="pull-right" data-bind="visible : btnallsum"><i class="fa fa-check-square"></i></span></button>
+                    </div>
+                </div>
+                <div class="row bottom15">
+                    <div class="col-xs-2" style="padding-right: 10px;">
+                        <i class="fa fa-bar-chart fa-2x"></i>
+                    </div>
+                    <div class="col-xs-10">
+                        <div style="margin-left: 10px">
+                            <select class="form-control" id="sumgraph">
+                              <option>Spline</option>
+                              <option>Bar</option>
+                              <option>Line</option>
+                              <option>Area</option>
+                              <option>Area Spline</option>
+                              <option>Step</option>
+                              <option>Step Area</option>
+                              <option>Scatter</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-10 col-sm-12 col-sm-12">
                 <div id='aht'></div>
             </div>
-            <div class="col-md-4">
-                <h3>Current Active Calls</h3>
-                <p class="badge text-center" style="font-size: 15em;" data-bind="text: callsnow"></div>
-            </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-7">
                 <p>Average Seconds vs Minutes (Last 60 minutes per minute)</p>
             </div>
+            <div class="col-md-5">
+                <span class="pull-right" id="loadingavg"><i class="fa fa-spinner fa-pulse"></i> Loading</span>
+            </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
+                   <div class="col-lg-2 col-md-12 col-sm-12">
+                <div class="row bottom15">
+                    <div class="col-lg-12 col-md-3 col-sm-3 bottom15">
+                        <button class="btn btn-success btn-block" id="btnwtfrdavg">Waterford <span id="tickbtnwtfrd" class="pull-right" data-bind="visible : btnwtfrdavg"><i class="fa fa-check-square"></i></span></button>
+                    </div>
+                    <div class="col-lg-12 col-md-3 col-sm-3 bottom15">
+                        <button class="btn btn-primary btn-block" id="btnwexavg">Wexford <span id="tickbtnwex" class="pull-right" data-bind="visible : btnwexavg"><i class="fa fa-check-square"></i></span></button>
+                    </div>
+                    <div class="col-lg-12 col-md-3 col-sm-3 bottom15">
+                        <button class="btn btn-warning btn-block" id="btncvnavg">Craigavon <span id="tickbtncvn" class="pull-right" data-bind="visible : btncvnavg"><i class="fa fa-check-square"></i></span></button>
+                    </div>
+                    <div class="col-lg-12 col-md-3 col-sm-3 bottom15">
+                        <button class="btn btn-INFO btn-block" id="btnallavg">All Sites <span id="tickbtnall" class="pull-right" data-bind="visible : btnallavg"><i class="fa fa-check-square"></i></span></button>
+                    </div>
+                </div>
+                <div class="row bottom15">
+                    <div class="col-xs-2" style="padding-right: 10px;">
+                        <i class="fa fa-bar-chart fa-2x"></i>
+                    </div>
+                    <div class="col-xs-10">
+                        <div style="margin-left: 10px">
+                            <select class="form-control" id="avggraph">
+                              <option>Area Spline</option>
+                              <option>Bar</option>
+                              <option>Line</option>
+                              <option>Area</option>
+                              <option>Step</option>
+                              <option>Step Area</option>
+                              <option>Spline</option>
+                              <option>Scatter</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-10 col-sm-12 col-sm-12">
                 <div id='avg'></div>
             </div>
         </div>
