@@ -2,9 +2,14 @@
 var express = require('express');
 var Promise = require('bluebird');
 var mongoose = Promise.promisifyAll(require('mongoose'));
+var schedule = require("node-schedule");
+var mongo = require("mongodb");
+var MongoClient = mongo.MongoClient;
 		
 //Declarations
-var db = mongoose.connect('mongodb://Woden:Brutus5hep@ds062807.mongolab.com:62807/calldata');		
+var dbData;
+var stats;
+var db = mongoose.connect('mongodb://Gavin:FiostaAdm1n@ds062807.mongolab.com:62807/calldata');		
 var CallerLog = require('./models/callModel');
 var TempLog = require('./models/callTemp');
 var app = express();
@@ -12,6 +17,8 @@ var ejsEngine = require("ejs-locals");
 var port = process.env.PORT || 3000;
 var callRouter = express.Router();
 var controllers = require("./controllers");
+var siteList = [];
+var buildTimeString = [];
 
 //View Engine
 app.engine("html", ejsEngine);
@@ -35,216 +42,77 @@ var sumArray = function(array){
 //Routes
 callRouter.route('/calls')
 	.get(function(req, res){
-		
-		var query = {};
-		
-         if(req.query.minute)	{
-			 query.minute = req.query.minute;
-		 }	
-		 
-		 var buildTimeString = [];
-		 var currentDate = new Date();
-		 var timeFromHour = currentDate.getMinutes();
-		 
-		 for (var i = timeFromHour + 1; i < 60; i++) { 
-           buildTimeString.push({minute:i ,wtfd:0 ,wex:0, cvn:0});
-         }
-         
- 		 for (var i = 0; i <= timeFromHour; i++) { 
-            buildTimeString.push({minute:i ,wtfd:0 ,wex:0, cvn:0});
-         }
-         
-         var promises = buildTimeString.map(function(data) {
-            query.minute = data.minute;
-            return CallerLog.find(query, function(err, calls){
-                if(!err){
-                    
-                    calls.filter(function(calls) { 
-                        switch(calls._doc.site){
-                            case "Waterford" :
-                                data.wtfd += 1;
-                                break;
-                            case "Wexford" :
-                                data.wex +=1;
-                                break;
-                            case "Craigavon" :
-                                data.cvn +=1;
-                                break;
-                        }
-                    });
-                } else {
-                    console.log(err);
-                }
-            });
-         });
-         
-         Promise.all(promises)
-            .then(function() { 
-                res.json(buildTimeString);
-            })
-            .error(console.error);
+        var query = {};
+        query.fields = [];
+            
+        
+        siteList.forEach(function(data){
+            query.fields.push(data);
+        });
+        
+        
+		stats.find({}, query).toArray(function(err, data) {
+		    if(!err)
+    		{
+    		    res.status(200).json(data);
+    		    console.log("Response to /calls");
+		    }
+		    else
+		        console.log(err);
+		});
 	});
+	
+	
 	
 callRouter.route('/sum')
 	.get(function(req, res){
 		
 		var query = {};
-		
-         if(req.query.minute)	{
-			 query.endMinute = req.query.minute;
-		 }	
-		 
-		 var buildTimeString = [];
-		 var currentDate = new Date();
-		 var timeFromHour = currentDate.getMinutes();
-		 
-		 for (var i = timeFromHour + 1; i < 60; i++) { 
-           buildTimeString.push({minute:i ,wtfrdsum : 0, wexsum: 0, cvnsum : 0});
-         }
-         
- 		 for (var i = 0; i <= timeFromHour; i++) { 
-            buildTimeString.push({minute:i ,wtfrdsum : 0, wexsum: 0, cvnsum : 0});
-         }
-         
-         var promises = buildTimeString.map(function(data) {
-            query.endMinute = data.minute;
-            return CallerLog.find(query, function(err, calls){
-                if(!err){
-                    
-                    calls.filter(function(calls) { 
-                        switch(calls._doc.site){
-                            case "Waterford" :
-                                data.wtfrdsum += calls._doc.calltime;
-                                break;
-                            case "Wexford" :
-                                data.wexsum += calls._doc.calltime;
-                                break;
-                            case "Craigavon" :
-                                data.cvnsum += calls._doc.calltime;
-                                break;
-                        }
-                    });
-                } else {
-                    console.log(err);
-                }
-            });
-         });
-         
-         Promise.all(promises)
-            .then(function() { 
-                res.json(buildTimeString);
-            })
-            .error(console.error);
+        query.fields = [];
+            
+        
+        siteList.forEach(function(data){
+            query.fields.push(data + "Sum");
+        });
+        
+        
+		stats.find({}, query).toArray(function(err, data) {
+		    if(!err)
+    		{
+    		    res.status(200).json(data);
+    		    console.log("Response to /sum");
+		    }
+		    else
+		        console.log(err);
+		});
 	});
 	
 callRouter.route('/avg')
 	.get(function(req, res){
-		
-		var countwtfrd = 0, countwex = 0, countcvn = 0;
-		var sumwtfrd = 0, sumwex = 0, sumcvn = 0;
 		var query = {};
-		
-         if(req.query.minute)	{
-			 query.endMinute = req.query.minute;
-		 }	
-		 
-		 var buildTimeString = [];
-		 var currentDate = new Date();
-		 var timeFromHour = currentDate.getMinutes();
-		 
-		 for (var i = timeFromHour + 1; i < 60; i++) { 
-           buildTimeString.push({minute:i ,wtfrdavg : 0, wexavg : 0, cvnavg : 0});
-         }
-         
- 		 for (var i = 0; i <= timeFromHour; i++) { 
-            buildTimeString.push({minute:i ,wtfrdavg : 0, wexavg : 0, cvnavg : 0});
-         }
-         
-         var promises = buildTimeString.map(function(data) {
-            query.endMinute = data.minute;
-            return CallerLog.find(query, function(err, calls){
-                if(!err){
-                    
-                    calls.filter(function(calls) { 
-                        switch(calls._doc.site){
-                            case "Waterford" :
-                                countwtfrd += 1;
-                                sumwtfrd += calls._doc.calltime;
-                                data.wtfrdavg = parseInt((sumwtfrd / countwtfrd),10);
-                                break;
-                            case "Wexford" :
-                                countwex +=1;
-                                sumwex += calls._doc.calltime;
-                                data.wexavg = parseInt((sumwex / countwex),10);
-                                break;
-                            case "Craigavon" :
-                                countcvn +=1;
-                                sumcvn += calls._doc.calltime;
-                                data.cvnavg = parseInt((sumcvn / countcvn),10);
-                                break;
-                        }
-                    });
-                } else {
-                    console.log(err);
-                }
-            });
-         });
-         
-         Promise.all(promises)
-            .then(function() { 
-                res.json(buildTimeString);
-            })
-            .error(console.error);
+        query.fields = [];
+            
+        
+        siteList.forEach(function(data){
+            query.fields.push(data + "Avg");
+        });
+        
+        
+		stats.find({}, query).toArray(function(err, data) {
+		    if(!err)
+    		{
+    		    res.status(200).json(data);
+    		    console.log("Response to /Avg");
+		    }
+		    else
+		        console.log(err);
+		});
 	});
 	
 callRouter.route('/now')
     .get(function(req, res){
-        TempLog.count(function(err, calls){
-            var obj = [];
-            obj.push({current : calls });
-            if(!err){
-                res.json(obj);
-            } else {
-                console.log(err);
-            }
-        });
-    });
-    
-callRouter.route('/nowwtfrd')
-    .get(function(req, res){
-        var query = {};
-        query.site = 'Waterford';
-        TempLog.count(query, function(err, calls){
-            var obj = [];
-            obj.push({current : calls });
-            if(!err){
-                res.json(obj);
-            } else {
-                console.log(err);
-            }
-        });
-    });
-    
-callRouter.route('/nowwex')
-    .get(function(req, res){
-        var query = {};
-        query.site = 'Wexford';
-        TempLog.count(query, function(err, calls){
-            var obj = [];
-            obj.push({current : calls });
-            if(!err){
-                res.json(obj);
-            } else {
-                console.log(err);
-            }
-        });
-    });
-    
-callRouter.route('/nowcvn')
-    .get(function(req, res){
-        var query = {};
-        query.site = 'Craigavon';
-        TempLog.count(query, function(err, calls){
+        var site = req.param('site');
+        TempLog.find({site: site}).count(function(err, calls){
             var obj = [];
             obj.push({current : calls });
             if(!err){
@@ -258,5 +126,143 @@ callRouter.route('/nowcvn')
 app.use('/api', callRouter);
 
 app.listen(port, function() { 
+    MongoClient.connect("mongodb://Gavin:FiostaAdm1n@ds062807.mongolab.com:62807/calldata", function(err, db) { //Mongo Client for unsctructured data
+        console.log("Connected to Mongo");
+        dbData = db;
+        stats = dbData.collection("callstats");
+        BuildTimeString();
+    });
+    
 	console.log('Running Running on PORT: ' + port);
+	
+	var rule = new schedule.RecurrenceRule();
+
+    rule.minute = new schedule.Range(0, 59, 1);
+    
+    schedule.scheduleJob(rule, function(){
+        shiftTimeString(new Date().getMinutes());
+    });
+    
 });
+
+//Building and updating data model
+function BuildTimeString()
+	{
+	    buildTimeString = [];
+	    var item = {};
+	    var query = {};
+        var currentDate = new Date();
+    	var timeFromHour = currentDate.getMinutes();
+        console.log("Building time string ....");
+            for (var i = timeFromHour + 1; i < 60; i++) { 
+    		     item = {};
+    		     item.minute = "" + i;
+    		     siteList.forEach(function(site) {
+    		        Object.defineProperty(item, site, {
+    		            value: 0,
+    		            enumerable: true,
+    		            writable: true
+    		        });
+    		     });
+                
+                 buildTimeString.push(item);
+             }
+             
+     		 for (var i = 0; i <= timeFromHour; i++) { 
+     		    item = {};
+    		     item.minute = "" + i;
+    		     siteList.forEach(function(site) {
+    		        Object.defineProperty(item, site, {
+    		            value: 0,
+    		            enumerable: true,
+    		            writable: true
+    		        });
+    		     });
+                
+                 buildTimeString.push(item);
+             }
+        stats.remove();     
+             
+        buildTimeString.map(function(data) {
+            query.minute = data.minute;
+            return CallerLog.find(query, function(err, calls){
+                if(!err){
+                    
+                    calls.filter(function(calls) { 
+                        if(!isNaN(eval("data." + calls._doc.site)))
+                        {
+                            eval("data." + calls._doc.site + "++");
+                            eval("data." + calls._doc.site + "Sum += calls._doc.calltime");
+                        }
+                        else
+                        {
+                            eval("data." + calls._doc.site + "= 1");
+                            eval("data." + calls._doc.site + "Sum = calls._doc.calltime");
+                            eval("data." + calls._doc.site + "Avg = 0");
+                            if(!siteExists(calls._doc.site))
+                                siteList.push(calls._doc.site);
+                        }
+                    });
+                    
+                    siteList.forEach(function(site) {
+	                    eval("data."+ site +"Avg = parseInt((data." + site + "Sum / data." + site + "),10)");
+	                 });
+                    
+                    stats.insert(data);
+                    console.log("Inserted Minute " + data.minute);
+                } else {
+                    console.log(err);
+                }
+            })
+         });
+             
+        
+	}
+	
+	function shiftTimeString(currentMinute)
+	{
+	    console.log("Shifting");
+	    var query = {};
+	    buildTimeString.shift();
+	    query.minute = currentMinute;
+	    var item = {minute : "" + currentMinute};
+	    
+	    CallerLog.find(query, function(err, calls) {
+	        if(!err)
+	        {
+	            calls.filter(function(calls) {
+	                if(!isNaN(eval("item." + calls._doc.site)))
+                        {
+                            eval("item." + calls._doc.site + "++");
+                            eval("item." + calls._doc.site + "Sum += calls._doc.calltime");
+                        }
+                        else
+                        {
+                            eval("item." + calls._doc.site + "= 1");
+                            eval("item." + calls._doc.site + "Sum = calls._doc.calltime");
+                        }
+	            });
+	            
+	            siteList.forEach(function(site) {
+	                eval("item."+ site +"Avg = parseInt((item." + site + "Sum / item." + site + "),10)");
+	            });
+	        }
+	        else
+	        {
+	            console.log(err);
+	        }
+	    }).exec().then(function() {
+	                stats.remove({minute : item.minute}, function() { stats.insert(item); });
+	            });
+	}
+	
+	function siteExists(site)
+	{
+	    var exists = false;
+	    siteList.forEach(function(data) {
+	        if(site == data)
+	            exists = true;
+	    });
+	    
+	    return exists;
+	}
