@@ -346,13 +346,9 @@ var chart = c3.generate({
         x : 'x',
         columns: [
             ['x', '0'],
-            ['Calls Taken Waterford', 0],
-            ['Calls Taken Wexford', 0],
-            ['Calls Taken Craigavon', 0]
         ],
         type: self.callsgraph(),
         groups: [
-            ['Calls Taken Waterford', 'Calls Taken Wexford', 'Calls Taken Craigavon']
         ]
     },
     axis: {
@@ -452,13 +448,14 @@ var updateVolumes = function() {
       dataType: 'json', 
     })
     .done(function(data) { 
+        var keys = Object.keys(data[0]);
             chart.load({
-                columns: [
-                    ['x', data[0].minute, data[1].minute, data[2].minute, data[3].minute,data[4].minute,data[5].minute,data[6].minute,data[7].minute,data[8].minute,data[9].minute,data[10].minute,data[11].minute,data[12].minute,data[13].minute,data[14].minute,data[15].minute,data[16].minute,data[17].minute,data[18].minute,data[19].minute,data[20].minute,data[21].minute,data[22].minute,data[23].minute,data[24].minute,data[25].minute,data[26].minute,data[27].minute,data[28].minute,data[29].minute,data[30].minute,data[31].minute,data[32].minute,data[33].minute,data[34].minute,data[35].minute,data[36].minute,data[37].minute,data[38].minute,data[39].minute,data[40].minute,data[41].minute,data[42].minute,data[43].minute,data[44].minute,data[45].minute,data[46].minute,data[47].minute,data[48].minute,data[49].minute,data[50].minute,data[51].minute,data[52].minute,data[53].minute,data[54].minute,data[55].minute,data[56].minute,data[57].minute,data[58].minute,data[59].minute],
-                    ['Calls Taken Waterford', data[0].wtfd,data[1].wtfd,data[2].wtfd,data[3].wtfd,data[4].wtfd,data[5].wtfd,data[6].wtfd,data[7].wtfd,data[8].wtfd,data[9].wtfd,data[10].wtfd,data[11].wtfd,data[12].wtfd,data[13].wtfd,data[14].wtfd,data[15].wtfd,data[16].wtfd,data[17].wtfd,data[18].wtfd,data[19].wtfd,data[20].wtfd,data[21].wtfd,data[22].wtfd,data[23].wtfd,data[24].wtfd,data[25].wtfd,data[26].wtfd,data[27].wtfd,data[28].wtfd,data[29].wtfd,data[30].wtfd,data[31].wtfd,data[32].wtfd,data[33].wtfd,data[34].wtfd,data[35].wtfd,data[36].wtfd,data[37].wtfd,data[38].wtfd,data[39].wtfd,data[40].wtfd,data[41].wtfd,data[42].wtfd,data[43].wtfd,data[44].wtfd,data[45].wtfd,data[46].wtfd,data[47].wtfd,data[48].wtfd,data[49].wtfd,data[50].wtfd,data[51].wtfd,data[52].wtfd,data[53].wtfd,data[54].wtfd,data[55].wtfd,data[56].wtfd,data[57].wtfd,data[58].wtfd],
-                    ['Calls Taken Wexford', data[0].wex,data[1].wex,data[2].wex,data[3].wex,data[4].wex,data[5].wex,data[6].wex,data[7].wex,data[8].wex,data[9].wex,data[10].wex,data[11].wex,data[12].wex,data[13].wex,data[14].wex,data[15].wex,data[16].wex,data[17].wex,data[18].wex,data[19].wex,data[20].wex,data[21].wex,data[22].wex,data[23].wex,data[24].wex,data[25].wex,data[26].wex,data[27].wex,data[28].wex,data[29].wex,data[30].wex,data[31].wex,data[32].wex,data[33].wex,data[34].wex,data[35].wex,data[36].wex,data[37].wex,data[38].wex,data[39].wex,data[40].wex,data[41].wex,data[42].wex,data[43].wex,data[44].wex,data[45].wex,data[46].wex,data[47].wex,data[48].wex,data[49].wex,data[50].wex,data[51].wex,data[52].wex,data[53].wex,data[54].wex,data[55].wex,data[56].wex,data[57].wex,data[58].wex],
-                    ['Calls Taken Craigavon', data[0].cvn,data[1].cvn,data[2].cvn,data[3].cvn,data[4].cvn,data[5].cvn,data[6].cvn,data[7].cvn,data[8].cvn,data[9].cvn,data[10].cvn,data[11].cvn,data[12].cvn,data[13].cvn,data[14].cvn,data[15].cvn,data[16].cvn,data[17].cvn,data[18].cvn,data[19].cvn,data[20].cvn,data[21].cvn,data[22].cvn,data[23].cvn,data[24].cvn,data[25].cvn,data[26].cvn,data[27].cvn,data[28].cvn,data[29].cvn,data[30].cvn,data[31].cvn,data[32].cvn,data[33].cvn,data[34].cvn,data[35].cvn,data[36].cvn,data[37].cvn,data[38].cvn,data[39].cvn,data[40].cvn,data[41].cvn,data[42].cvn,data[43].cvn,data[44].cvn,data[45].cvn,data[46].cvn,data[47].cvn,data[48].cvn,data[49].cvn,data[50].cvn,data[51].cvn,data[52].cvn,data[53].cvn,data[54].cvn,data[55].cvn,data[56].cvn,data[57].cvn,data[58].cvn]
-                ]
+                json: data,
+                keys: {
+                    x: "minute",
+                    value: keys
+                },
+                Groups: keys
             });
     })
     .always(function(){
