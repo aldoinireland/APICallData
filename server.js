@@ -18,7 +18,6 @@ var port = process.env.PORT || 3000;
 var callRouter = express.Router();
 var controllers = require("./controllers");
 var siteList = [];
-var fieldList = [];
 var buildTimeString = [];
 
 //View Engine
@@ -127,7 +126,9 @@ callRouter.route('/now')
 app.use('/api', callRouter);
 
 app.listen(port, function() { 
+
     MongoClient.connect("mongodb://xxxxxx:xxxxxxx@ds062807.mongolab.com:62807/calldata", function(err, db) { //Mongo Client for unsctructured data
+
         console.log("Connected to Mongo");
         dbData = db;
         stats = dbData.collection("callstats");
